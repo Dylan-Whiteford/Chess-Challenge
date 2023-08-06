@@ -7,7 +7,7 @@ namespace MinMaxClasses
     /// <summary>
     /// Implementation of the Minimax algorithm with alpha-beta pruning.
     /// </summary>
-    public class MinimaxWithAlphaPruning
+    public class MinMaxWithAlphaPruning
     {
 
         /// <summary>
