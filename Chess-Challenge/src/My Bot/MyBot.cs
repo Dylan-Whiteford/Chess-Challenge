@@ -9,7 +9,7 @@ public class MyBot : IChessBot
 
         // AlphaBetaPruning example
         MinMaxWithAlphaPruning minimax = new();
-        Move moveToPlay = minimax.FindBestMove(board, 6);
+        Move moveToPlay = minimax.FindBestMove(board, 5);
 
 
         // MinMax example

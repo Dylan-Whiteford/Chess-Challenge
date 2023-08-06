@@ -4,6 +4,9 @@ using System.Diagnostics;
 
 namespace MinMaxClasses
 {
+
+
+
     /// <summary>
     /// Implementation of the Minimax algorithm with alpha-beta pruning.
     /// </summary>
@@ -27,6 +30,9 @@ namespace MinMaxClasses
             int bestEvaluation = int.MinValue;
             Move bestMove = Move.NullMove;
 
+            int alpha = int.MinValue;
+            int beta = int.MaxValue;
+
             // use GetLegalMovesNonAlloc(ref moves, bool capturesOnly) to avoid allocating a new array every time.
             // see https://seblague.github.io/chess-coding-challenge/documentation/ 
             Span<Move> legalMoves = stackalloc Move[256];
@@ -41,7 +47,7 @@ namespace MinMaxClasses
         
 
                 // Evaluate the board with the Minimax algorithm.
-                int evaluation = AlphaBeta(board, depth - 1, int.MinValue, int.MaxValue, (board.IsWhiteToMove));
+                int evaluation = AlphaBeta(board, depth - 1,  alpha,  beta,  board.IsWhiteToMove);
 
                 // Console.WriteLine($"eval: {evaluation}");
                 // Console.WriteLine($"___________");
@@ -62,6 +68,8 @@ namespace MinMaxClasses
 
             return bestMove;
         }
+
+
 
 
         /// <summary>
@@ -93,7 +101,7 @@ namespace MinMaxClasses
                 {
                     board.MakeMove(move);
 
-                    value = Math.Max(value, AlphaBeta(board, depth - 1, alpha, beta, false));
+                    value = Math.Max(value, AlphaBeta(board, depth - 1,  alpha,  beta, false));
 
                     alpha = Math.Max(alpha, value);
 
@@ -118,7 +126,7 @@ namespace MinMaxClasses
                 {
                     board.MakeMove(move);
 
-                    value = Math.Min(value, AlphaBeta(board, depth - 1, alpha, beta, true));
+                    value = Math.Min(value, AlphaBeta(board, depth  - 1,  alpha,  beta, true));
                     beta = Math.Min(beta, value);
 
                     board.UndoMove(move);
