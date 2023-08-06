@@ -9,22 +9,26 @@ public class MinMax
     const int beta = infinity;
 
 
-    public Double alphabeta(Board position, int depth, bool maximizingPlayer) {
+    public int alphabeta(Board position, int depth, bool maximizingPlayer) {
 
 
         return _alphabeta(position, depth, alpha, beta, maximizingPlayer);
     }
 
-    public Double _alphabeta(Board position, int depth, Double a, Double b, bool maximizingPlayer) {
+    public int _alphabeta(Board position, int depth, int a, int b, bool maximizingPlayer) {
         
-        if(depth == 0 || position.GetLegalMoves().Length==0) {
+        Span<Move> legalMoves = stackalloc Move[256];
+        position.GetLegalMovesNonAlloc(ref legalMoves);
+
+        if(depth == 0 ) {
             // TODO: HEURISTIC FUNCTION
             Random rng = new();
             return rng.Next(138)-69;
         }
+            
         if(maximizingPlayer) {
-            Double value = -infinity;
-            foreach(Move move in position.GetLegalMoves()) {
+            int value = -infinity;
+            foreach(Move move in legalMoves) {
                 position.MakeMove(move);
                 value = Math.Max(value, _alphabeta(position, depth - 1, a, b, false));
                 if (value > b) {
@@ -37,8 +41,9 @@ public class MinMax
             return value;
         }
         else{
-            Double value = infinity;
-            foreach(Move move in position.GetLegalMoves()) {
+            int value = infinity;
+
+            foreach(Move move in legalMoves) {
                 position.MakeMove(move);
                 value = Math.Min(value, _alphabeta(position, depth - 1, a, b, true));
                 if (value < a) {
