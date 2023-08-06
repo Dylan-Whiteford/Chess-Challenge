@@ -1,13 +1,27 @@
 ﻿using ChessChallenge.API;
 using System;
+using System.Diagnostics;
+
 public class MyBot : IChessBot
 {
     public Move Think(Board board, Timer timer)
     {
 
+        MinMax minmax = new();
         Random rng = new();
         Move[] moves = board.GetLegalMoves();
-        Move moveToPlay = moves[rng.Next(moves.Length)];
+        Move moveToPlay = moves[0];
+        Double bestEval=0;
+        foreach(Move move in moves) {
+            board.MakeMove(move);
+            Double evaluation = minmax.alphabeta(board,5,true);
+
+            Console.Write(evaluation.ToString());
+            
+            if(evaluation > bestEval) moveToPlay = move;
+            board.UndoMove(move);
+            
+        }
         return moveToPlay;
     }
 }
