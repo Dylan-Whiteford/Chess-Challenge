@@ -13,6 +13,8 @@ namespace MinMaxClasses
     public class MinMaxWithAlphaPruning
     {
 
+
+
         /// <summary>
         /// Returns the best move for the current player.
         /// 
@@ -33,21 +35,23 @@ namespace MinMaxClasses
             int alpha = int.MinValue;
             int beta = int.MaxValue;
 
+
             // use GetLegalMovesNonAlloc(ref moves, bool capturesOnly) to avoid allocating a new array every time.
             // see https://seblague.github.io/chess-coding-challenge/documentation/ 
             Span<Move> legalMoves = stackalloc Move[256];
             board.GetLegalMovesNonAlloc(ref legalMoves, capturesOnly: false);
 
             foreach (Move move in legalMoves)
-            {
+            {   
                 // Make the move.
                 board.MakeMove(move);
 
                 // Console.WriteLine($"Base Move: {move.MovePieceType}");
-        
-
+            
                 // Evaluate the board with the Minimax algorithm.
                 int evaluation = AlphaBeta(board, depth - 1,  alpha,  beta,  board.IsWhiteToMove);
+
+                //  Console.WriteLine($"Alpha: {alpha}, Beta: {beta}");
 
                 // Console.WriteLine($"eval: {evaluation}");
                 // Console.WriteLine($"___________");
@@ -86,7 +90,13 @@ namespace MinMaxClasses
         private int AlphaBeta(Board board, int depth, int alpha, int beta, bool maximizingPlayer)
         {
 
-            if (depth == 0) return new Evaluation().Evaluate(board);
+            Span<Move> legalMoves = stackalloc Move[256];
+            board.GetLegalMovesNonAlloc(ref legalMoves, capturesOnly: false);
+            
+      
+            if (depth == 0)  return new Evaluation().Evaluate(board);
+            
+
 
             if (maximizingPlayer)
             {
@@ -95,8 +105,7 @@ namespace MinMaxClasses
                 // If the game is over, return the minimum evaluation since we don't want to lose/draw.
                 //if (board.IsInCheckmate() || board.IsDraw()) return value;
 
-                Span<Move> legalMoves = stackalloc Move[256];
-                board.GetLegalMovesNonAlloc(ref legalMoves, capturesOnly: false);
+              
                 foreach (Move move in legalMoves)
                 {
                     board.MakeMove(move);
@@ -119,16 +128,12 @@ namespace MinMaxClasses
 
                 // If the game is over, return the maximum value beause the opponent doesn't want to lose/draw.
                 //if (board.IsInCheckmate() || board.IsDraw()) return minEvaluation;
-
-                Span<Move> moves = stackalloc Move[256];
-                board.GetLegalMovesNonAlloc(ref moves, capturesOnly: false);
-                foreach (Move move in moves)
+                foreach (Move move in legalMoves)
                 {
                     board.MakeMove(move);
 
                     value = Math.Min(value, AlphaBeta(board, depth  - 1,  alpha,  beta, true));
                     beta = Math.Min(beta, value);
-
                     board.UndoMove(move);
 
                     if (value <= alpha)
