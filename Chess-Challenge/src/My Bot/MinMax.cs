@@ -67,9 +67,6 @@ namespace MinMaxClasses
                 board.UndoMove(move);
             }
 
-
-            Debug.Assert(bestMove != Move.NullMove, "bestMove is null, because there is no valid move.");
-
             return bestMove;
         }
 
@@ -284,9 +281,7 @@ namespace MinMaxClasses
             int blackScore = bpawns + bknights + bbishops + brooks + bqueens + bkings;
 
             int score;
-            score = whiteScore - blackScore;
-
-
+            score = whiteScore -  blackScore;
 
             return score;
         }
