@@ -4,9 +4,17 @@ using MinMaxClasses;
 public class MyBot : IChessBot
 {
     public Move Think(Board board, Timer timer)
-    {
-        MiniMax minimax = new();
-        Move moveToPlay = minimax.FindBestMove(board, 4);
+    {   
+
+
+        // AlphaBetaPruning example
+        MinMaxWithAlphaPruning minimax = new();
+        Move moveToPlay = minimax.FindBestMove(board, 6);
+
+
+        // MinMax example
+        // MinMax minimax = new();
+        // Move moveToPlay = minimax.FindBestMove(board, 6);
 
         return moveToPlay;
     }

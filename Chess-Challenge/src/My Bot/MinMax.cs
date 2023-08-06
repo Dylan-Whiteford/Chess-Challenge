@@ -38,6 +38,7 @@ namespace MinMaxClasses
                 board.MakeMove(move);
 
                 // Console.WriteLine($"Base Move: {move.MovePieceType}");
+        
 
                 // Evaluate the board with the Minimax algorithm.
                 int evaluation = AlphaBeta(board, depth - 1, int.MinValue, int.MaxValue, true);
@@ -76,7 +77,6 @@ namespace MinMaxClasses
         /// <returns></returns>
         private int AlphaBeta(Board board, int depth, int alpha, int beta, bool maximizingPlayer)
         {
-
 
             if (depth == 0) return new Evaluation().Evaluate(board);
 
@@ -142,7 +142,7 @@ namespace MinMaxClasses
     /// <summary>
     /// Basic implementation of the Minimax algorithm.
     /// </summary>
-    public class MiniMax
+    public class MinMax
     {
 
         /// <summary>
