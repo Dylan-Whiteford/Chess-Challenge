@@ -4,6 +4,140 @@ using System.Diagnostics;
 
 namespace MinMaxClasses
 {
+    /// <summary>
+    /// Implementation of the Minimax algorithm with alpha-beta pruning.
+    /// </summary>
+    public class MinimaxWithAlphaPruning
+    {
+
+        /// <summary>
+        /// Returns the best move for the current player.
+        /// 
+        /// TODO(Werner): Keep an tree of the best moves, so that in the case that the opponent makes a move that we
+        ///               have already evaluated, we can continue with the tree. (Not sure this is possible)
+        /// </summary>
+        /// <param name="board"></param>
+        /// <param name="depth"></param>
+        /// <returns></returns>
+        public Move FindBestMove(Board board, int depth)
+        {
+
+            Debug.Assert(depth > 0, "Depth must be greater than 0.");
+
+            int bestEvaluation = int.MinValue;
+            Move bestMove = Move.NullMove;
+
+            // use GetLegalMovesNonAlloc(ref moves, bool capturesOnly) to avoid allocating a new array every time.
+            // see https://seblague.github.io/chess-coding-challenge/documentation/ 
+            Span<Move> legalMoves = stackalloc Move[256];
+            board.GetLegalMovesNonAlloc(ref legalMoves, capturesOnly: false);
+
+            foreach (Move move in legalMoves)
+            {
+                // Make the move.
+                board.MakeMove(move);
+
+                // Console.WriteLine($"Base Move: {move.MovePieceType}");
+
+                // Evaluate the board with the Minimax algorithm.
+                int evaluation = AlphaBeta(board, depth - 1, int.MinValue, int.MaxValue, true);
+
+                // Console.WriteLine($"eval: {evaluation}");
+                // Console.WriteLine($"___________");
+
+                // TODO:(discussion) What to do with equal evals?
+                if (evaluation > bestEvaluation)
+                {
+                    bestEvaluation = evaluation;
+                    bestMove = move;
+                }
+
+                // Undo the move.
+                board.UndoMove(move);
+            }
+
+
+            Debug.Assert(bestMove != Move.NullMove, "bestMove is null, because there is no valid move.");
+
+            return bestMove;
+        }
+
+
+        /// <summary>
+        /// The Minimax algorithm with alpha-beta pruning
+        /// The algorithm is based on the pseudocode from https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
+        /// 
+        /// </summary>
+        /// <param name="board"></param>
+        /// <param name="depth"></param>
+        /// <param name="alpha"></param>
+        /// <param name="beta"></param>
+        /// <param name="maximizingPlayer"></param>
+        /// <returns></returns>
+        private int AlphaBeta(Board board, int depth, int alpha, int beta, bool maximizingPlayer)
+        {
+
+
+            if (depth == 0) return new Evaluation().Evaluate(board);
+
+            if (maximizingPlayer)
+            {
+                int maxEvaluation = int.MinValue;
+
+                // If the game is over, return the minimum evaluation since we don't want to lose/draw.
+                if (board.IsInCheckmate() || board.IsDraw()) return maxEvaluation;
+
+                Span<Move> legalMoves = stackalloc Move[256];
+                board.GetLegalMovesNonAlloc(ref legalMoves, capturesOnly: false);
+                foreach (Move move in legalMoves)
+                {
+                    board.MakeMove(move);
+
+                    int evaluation = AlphaBeta(board, depth - 1, alpha, beta, false);
+
+                    maxEvaluation = Math.Max(maxEvaluation, evaluation);
+
+                    alpha = Math.Max(alpha, evaluation);
+
+                    board.UndoMove(move);
+
+                    if (beta <= alpha)
+                        break;
+                }
+
+                return maxEvaluation;
+            }
+            else
+            {
+                int minEvaluation = int.MaxValue;
+
+                // If the game is over, return the maximum evaluation beause the opponent doesn't want to lose/draw.
+                if (board.IsInCheckmate() || board.IsDraw()) return minEvaluation;
+
+                Span<Move> moves = stackalloc Move[256];
+                board.GetLegalMovesNonAlloc(ref moves, capturesOnly: false);
+                foreach (Move move in moves)
+                {
+                    board.MakeMove(move);
+
+                    int evaluation = AlphaBeta(board, depth - 1, alpha, beta, true);
+
+                    minEvaluation = Math.Min(minEvaluation, evaluation);
+
+                    beta = Math.Min(beta, evaluation);
+
+                    board.UndoMove(move);
+
+
+                    if (beta <= alpha)
+                        break;
+                }
+
+                return minEvaluation;
+            }
+        }
+
+    }
 
     /// <summary>
     /// Basic implementation of the Minimax algorithm.
