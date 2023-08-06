@@ -111,7 +111,7 @@ namespace MinMaxClasses
             {
                 int minEvaluation = int.MaxValue;
 
-                // If the game is over, return the maximum evaluation beause the opponent doesn't want to lose/draw.
+                // If the game is over, return the maximum value beause the opponent doesn't want to lose/draw.
                 if (board.IsInCheckmate() || board.IsDraw()) return minEvaluation;
 
                 Span<Move> moves = stackalloc Move[256];
