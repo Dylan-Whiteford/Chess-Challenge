@@ -41,7 +41,7 @@ namespace MinMaxClasses
         
 
                 // Evaluate the board with the Minimax algorithm.
-                int evaluation = AlphaBeta(board, depth - 1, int.MinValue, int.MaxValue, true);
+                int evaluation = AlphaBeta(board, depth - 1, int.MinValue, int.MaxValue, (board.IsWhiteToMove));
 
                 // Console.WriteLine($"eval: {evaluation}");
                 // Console.WriteLine($"___________");
@@ -82,10 +82,10 @@ namespace MinMaxClasses
 
             if (maximizingPlayer)
             {
-                int maxEvaluation = int.MinValue;
+                int value = int.MinValue;
 
                 // If the game is over, return the minimum evaluation since we don't want to lose/draw.
-                if (board.IsInCheckmate() || board.IsDraw()) return maxEvaluation;
+                //if (board.IsInCheckmate() || board.IsDraw()) return value;
 
                 Span<Move> legalMoves = stackalloc Move[256];
                 board.GetLegalMovesNonAlloc(ref legalMoves, capturesOnly: false);
@@ -93,26 +93,24 @@ namespace MinMaxClasses
                 {
                     board.MakeMove(move);
 
-                    int evaluation = AlphaBeta(board, depth - 1, alpha, beta, false);
+                    value = Math.Max(value, AlphaBeta(board, depth - 1, alpha, beta, false));
 
-                    maxEvaluation = Math.Max(maxEvaluation, evaluation);
-
-                    alpha = Math.Max(alpha, evaluation);
+                    alpha = Math.Max(alpha, value);
 
                     board.UndoMove(move);
 
-                    if (beta <= alpha)
+                    if (value >= beta)
                         break;
                 }
 
-                return maxEvaluation;
+                return value;
             }
             else
             {
-                int minEvaluation = int.MaxValue;
+                int value = int.MaxValue;
 
                 // If the game is over, return the maximum value beause the opponent doesn't want to lose/draw.
-                if (board.IsInCheckmate() || board.IsDraw()) return minEvaluation;
+                //if (board.IsInCheckmate() || board.IsDraw()) return minEvaluation;
 
                 Span<Move> moves = stackalloc Move[256];
                 board.GetLegalMovesNonAlloc(ref moves, capturesOnly: false);
@@ -120,20 +118,16 @@ namespace MinMaxClasses
                 {
                     board.MakeMove(move);
 
-                    int evaluation = AlphaBeta(board, depth - 1, alpha, beta, true);
-
-                    minEvaluation = Math.Min(minEvaluation, evaluation);
-
-                    beta = Math.Min(beta, evaluation);
+                    value = Math.Min(value, AlphaBeta(board, depth - 1, alpha, beta, true));
+                    beta = Math.Min(beta, value);
 
                     board.UndoMove(move);
 
-
-                    if (beta <= alpha)
+                    if (value <= alpha)
                         break;
                 }
 
-                return minEvaluation;
+                return value;
             }
         }
 
@@ -257,7 +251,7 @@ namespace MinMaxClasses
             PieceList[] pieceList = board.GetAllPieceLists();
 
             // Piece values: null, pawn, knight, bishop, rook, queen, king
-            int[] pieceValues = { 0, 100, 300, 300, 500, 900, 10000 };
+            int[] pieceValues = { 0, 100, 300, 300, 500, 900, 0 };
 
             int pawns = pieceList[0].Count * pieceValues[1];
             int knights = pieceList[1].Count * pieceValues[2];
@@ -277,16 +271,9 @@ namespace MinMaxClasses
             int blackScore = bpawns + bknights + bbishops + brooks + bqueens + bkings;
 
             int score;
-            if (board.IsWhiteToMove)
-            {
-                score = whiteScore - blackScore;
-                // Console.WriteLine($"White: {score}");
-            }
-            else
-            {
-                score = blackScore - whiteScore;
-                // Console.WriteLine($"Black: {score}");
-            }
+            score = whiteScore - blackScore;
+
+
 
             return score;
         }
